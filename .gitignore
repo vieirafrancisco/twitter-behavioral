@@ -3,3 +3,9 @@ Pipfile.lock
 
 #vscode
 .vscode/
+
+#csv files
+resultset/*.csv
+
+#pycache
+__pycache__/
