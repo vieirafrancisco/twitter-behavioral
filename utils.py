@@ -1,7 +1,7 @@
 import os
 import re
 import json
-from typing import Pattern, AnyStr, List, DataFrame
+from typing import Pattern, AnyStr, List
 
 import pandas as pd
 import numpy as np
@@ -19,7 +19,7 @@ def get_file_pattern(pattern: str) -> Pattern[AnyStr]:
     return re.compile(file_pattern)
 
 
-def save_dataframe(df: DataFrame, path: str, file_name: str) -> None:
+def save_dataframe(df: object, path: str, file_name: str) -> None:
     file_path = path+file_name
 
     if file_name in os.listdir(path):
@@ -31,15 +31,19 @@ def save_dataframe(df: DataFrame, path: str, file_name: str) -> None:
 
 
 def generate_behavioral_dataset(path: str, pattern: str) -> None:
+    output_file_name = pattern
     file_pattern = get_file_pattern(pattern)
     files_names = get_files_names(path, file_pattern)
 
     for file_name in files_names:
         curr_df = get_df_with_generated_features(path, file_name)
-        save_dataframe(curr_df, "./resultset/", "teste.csv")
+        save_dataframe(
+            curr_df, "./resultset/", f"{output_file_name}_behavioral.csv"
+        )
+        print(file_name + ", ok!")
 
 
-def get_df_with_generated_features(path: str, file_name: str) -> DataFrame:
+def get_df_with_generated_features(path: str, file_name: str) -> object:
     # read csv
     df = pd.read_csv(path + file_name)
     # ids values in type of list
@@ -56,12 +60,13 @@ def get_df_with_generated_features(path: str, file_name: str) -> DataFrame:
 
         # total tweets number
         number_tweets = len(dfTemp)
+        if number_tweets == 0:
+            number_tweets = 1
 
         week_days = [0, 0, 0, 0, 0, 0, 0]
 
         # hashtags
         list_hashtags = []
-        tweets_with_hashtags = 0
         total_hashtags = 0
 
         # status in type of list
@@ -77,11 +82,7 @@ def get_df_with_generated_features(path: str, file_name: str) -> DataFrame:
 
             week_days[ff.verify_day(f['created_at'])] += 1
 
-            tweets_with_hashtags += ff.verify_hashtags(
-                 f['entities']['hashtags']
-            )
-
-            total_hashtags += ff.number_hashtags(f['entities']['hashtags'])
+            total_hashtags += len(f['entities']['hashtags'])
 
             list_hashtags.append(total_hashtags)
 
@@ -90,7 +91,7 @@ def get_df_with_generated_features(path: str, file_name: str) -> DataFrame:
         _list.append({
             'id': i,
             'mean_interval_tweets': np.mean(intervals),
-            'std_interval_tweets': np.sqrt(np.var(intervals)),
+            'std_interval_tweets': np.std(intervals, ddof=1),
             'monday_rf': week_days[0]/number_tweets,
             'tuesday_rf': week_days[1]/number_tweets,
             'wednesday_rf': week_days[2]/number_tweets,
@@ -98,9 +99,9 @@ def get_df_with_generated_features(path: str, file_name: str) -> DataFrame:
             'friday_rf': week_days[4]/number_tweets,
             'saturday_rf': week_days[5]/number_tweets,
             'sunday_rf': week_days[6]/number_tweets,
-            'std_day_week': np.sqrt(np.var(week_days)),
-            'hashtag_per_tweet': total_hashtags/tweets_with_hashtags,
-            'std_hashtags': np.sqrt(np.var(list_hashtags))
+            'std_day_week': np.std(week_days, ddof=1),
+            'hashtag_per_tweet': total_hashtags/number_tweets,
+            'std_hashtags': np.std(list_hashtags, ddof=1)
         })
 
         columns = [
@@ -110,5 +111,5 @@ def get_df_with_generated_features(path: str, file_name: str) -> DataFrame:
             "std_hashtags"
         ]
 
-        curr_df = pd.DataFrame(_list, columns=columns)
-        return curr_df
+    curr_df = pd.DataFrame(_list, columns=columns)
+    return curr_df
