@@ -6,9 +6,8 @@ import numpy as np
 # return the string in datetime type
 def string_to_date(string):
     temp_string = ' '.join(string.split(' ')[1:])
-    temp_string = string.replace("+", "")
-    temp_string = string.replace("0000", "")
-    temp_string = datetime.strptime(temp_string, '%b %d %H:%M:%S  %Y')
+    temp_string = string.replace("+0000 ", "")
+    temp_string = datetime.strptime(temp_string, '%a %b %d %H:%M:%S  %Y')
 
     return temp_string
 
@@ -41,21 +40,6 @@ def verify_day(date):
         return 5
     elif date_day == "Sun":
         return 6
-
-
-def verify_hashtags(instance):
-    for hashtag in instance:
-        if hashtag["text"] != '':
-            return 1
-    return 0
-
-
-def number_hashtags(instance):
-    number = 0
-    for hashtag in instance:
-        if hashtag["text"] != '':
-            number += 1
-    return number
 
 
 def limit_iqr(values):
