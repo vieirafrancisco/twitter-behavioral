@@ -36,16 +36,22 @@ def generate_behavioral_dataset(path: str, pattern: str) -> None:
     files_names = get_files_names(path, file_pattern)
 
     for file_name in files_names:
-        curr_df = get_df_with_generated_features(path, file_name)
-        save_dataframe(
-            curr_df, "./resultset/", f"{output_file_name}_behavioral.csv"
-        )
-        print(file_name + ", ok!")
+        try:
+            curr_df = get_df_with_generated_features(path, file_name)
+            save_dataframe(
+                curr_df, "./resultset/", f"{output_file_name}_behavioral.csv"
+            )
+            print(file_name + ", ok!")
+        except Exception as e:
+            print(e)
 
 
 def get_df_with_generated_features(path: str, file_name: str) -> object:
     # read csv
-    df = pd.read_csv(path + file_name)
+    try:
+        df = pd.read_csv(path + file_name)
+    except Exception:
+        raise Exception("Error to read csv file!")
     # ids values in type of list
     ids = df.id.unique()
     # final list that stores all the data
