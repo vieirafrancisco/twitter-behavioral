@@ -66,8 +66,8 @@ def get_df_with_generated_features(path: str, file_name: str) -> object:
 
         # total tweets number
         number_tweets = len(dfTemp)
-        if number_tweets == 0:
-            number_tweets = 1
+        if number_tweets < 2:
+            continue
 
         week_days = [0, 0, 0, 0, 0, 0, 0]
 

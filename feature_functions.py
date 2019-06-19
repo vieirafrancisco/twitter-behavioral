@@ -25,21 +25,9 @@ def get_intervals(dates):
 
 
 def verify_day(date):
+    w = {"Mon": 0, "Tue": 1, "Wed": 2, "Thu": 3, "Fri": 4, "Sat": 5, "Sun": 6}
     date_day = date.split(' ', 1)[0]
-    if date_day == 'Mon':
-        return 0
-    elif date_day == "Tue":
-        return 1
-    elif date_day == "Wed":
-        return 2
-    elif date_day == "Thu":
-        return 3
-    elif date_day == "Fri":
-        return 4
-    elif date_day == "Sat":
-        return 5
-    elif date_day == "Sun":
-        return 6
+    return w[date_day]
 
 
 def limit_iqr(values):
